@@ -14,26 +14,9 @@ class LabeledEntry(tk.Frame):
     def get(self):
         return self.entry.get()
 
-# Create the main window
-root = tk.Tk()
-root.title("Plate Inventory - Enter Data")
-root.resizable(False, False)
-
-# Create a dictionary to store the values
-values = {
-    'Monday': 0,
-    'Press Remakes': 0,
-    'PP Scrap': 0,
-    'Total Good': 0,
-    'Total Used': 0,
-    'Inventory Addition': 0,
-    'Friday': 0
-}
-
-config = ConfigParser()
-config.read('exportLocation.ini')
-
-# Define the function to update the values and print the dictionary
+# ************************************
+# Update the form values on user entry
+# ************************************
 def update_values(self):
     # Get the values from the entries
     monday_val = int(monday_entry.get()) if monday_entry.get().isdigit() else 0
@@ -58,11 +41,11 @@ def update_values(self):
     # Update the labels
     total_used_label.config(text=str(total_used))
     friday_label.config(text=str(friday_total))
-    
-    # Print the values dictionary
-    print(values)
 
-def export_values():
+# *********************
+# Export the excel file
+# *********************
+def export_excel():
     # Get the default path from the configuration file
     default_path = config.get('DEFAULTS', 'defaultfilepath')
 
@@ -79,6 +62,28 @@ def export_values():
         config.set('DEFAULTS', 'defaultfilepath', directory)
         with open('exportLocation.ini', 'w') as configfile:
             config.write(configfile)
+
+#***********************
+# Create the main window
+#***********************
+root = tk.Tk()
+root.title("Plate Inventory - Enter Data")
+root.resizable(False, False)
+
+# Create a dictionary to store the values
+values = {
+    'Monday': 0,
+    'Press Remakes': 0,
+    'PP Scrap': 0,
+    'Total Good': 0,
+    'Total Used': 0,
+    'Inventory Addition': 0,
+    'Friday': 0
+}
+
+# Get the default file export path
+config = ConfigParser()
+config.read('exportLocation.ini')
 
 # Create the labeled entries and labels sticky="e"
 monday_entry = LabeledEntry(root, "Monday:", 24, 10)
@@ -112,7 +117,7 @@ friday_name_label.grid(row=6, column=0, sticky="w", pady=10)
 friday_label = tk.Label(root, text="0", font=("Helvetica", 24))
 friday_label.grid(row=6, column=0, sticky="e")
 
-excel_button = tk.Button(root, text="Export Excel File", command=export_values)
+excel_button = tk.Button(root, text="Export Excel File", command=export_excel)
 excel_button.grid(row=7, column=0, sticky="e", pady=10)
 
 root.mainloop()
