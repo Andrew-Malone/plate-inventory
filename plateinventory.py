@@ -63,23 +63,22 @@ def update_values(self):
     print(values)
 
 def export_values():
-    # values to be exported 
-    df = pd.DataFrame([values])
+    # Get the default path from the configuration file
+    default_path = config.get('DEFAULTS', 'defaultfilepath')
 
-    # currentFilePath = config.get('DEFAULTS','defaultfilepath') 
+    # Always open the file dialog for directory selection
+    directory = filedialog.askdirectory(initialdir=default_path)
 
-    if config.get('DEFAULTS', 'defaultfilepath') == '':  # no default
-        directory = filedialog.askdirectory()
-        newDir = directory + "/Weekly Plate Count.xlsx"        
-        df.to_excel(newDir, index=False)
-    
-        config.set('DEFAULTS', 'defaultfilepath', newDir)
+    # Export the Excel file
+    if directory:
+        new_file_path = directory + "/Weekly Plate Count.xlsx"
+        df = pd.DataFrame([values])
+        df.to_excel(new_file_path, index=False)
+
+        # Update the default path in the configuration file
+        config.set('DEFAULTS', 'defaultfilepath', directory)
         with open('exportLocation.ini', 'w') as configfile:
             config.write(configfile)
-    else:  # straight to file if there is a default
-        directory = filedialog.askdirectory()
-        newDir = directory + "/Weekly Plate Count.xlsx"        
-        df.to_excel(newDir, index=False)
 
 # Create the labeled entries and labels sticky="e"
 monday_entry = LabeledEntry(root, "Monday:", 24, 10)
