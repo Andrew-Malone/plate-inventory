@@ -2,6 +2,7 @@ import tkinter as tk
 from configparser import ConfigParser
 from tkinter import filedialog
 import pandas as pd
+import os
 
 class LabeledEntry(tk.Frame):
     def __init__(self, master, label_text, fontSize, padding):
@@ -46,22 +47,33 @@ def update_values(self):
 # Export the excel file
 # *********************
 def export_excel():
-    # Get the default path from the configuration file
+    # Get the default path from the config
     default_path = config.get('DEFAULTS', 'defaultfilepath')
 
-    # Always open the file dialog for directory selection
-    directory = filedialog.askdirectory(initialdir=default_path)
+    # Open the file dialog for file name and directory selection
+    file_path = filedialog.asksaveasfilename(
+            initialdir=default_path,
+            defaultextension=".xlsx",
+            filetypes=[("Excel files", "*.xlsx")],
+            title="Save the Excel File"
+        )
 
     # Export the Excel file
-    if directory:
-        new_file_path = directory + "/Weekly Plate Count.xlsx"
+    if file_path:
+        # Get the directory path to save as default in the config
+        dir_path  = os.path.dirname(file_path)
+        
+        # Save the excel file
         df = pd.DataFrame([values])
-        df.to_excel(new_file_path, index=False)
+        df.to_excel(file_path, index=False)
 
-        # Update the default path in the configuration file
-        config.set('DEFAULTS', 'defaultfilepath', directory)
+        # Update the default path in the config
+        config.set('DEFAULTS', 'defaultfilepath', dir_path)
         with open('exportLocation.ini', 'w') as configfile:
             config.write(configfile)
+
+    # Focus back on the main Tkinter window
+    root.focus_force()
 
 #***********************
 # Create the main window
@@ -119,5 +131,11 @@ friday_label.grid(row=6, column=0, sticky="e")
 
 excel_button = tk.Button(root, text="Export Excel File", command=export_excel)
 excel_button.grid(row=7, column=0, sticky="e", pady=10)
+
+# Set focus on the Monday entry
+monday_entry.entry.focus_set()
+
+# Center the window
+    # code here later
 
 root.mainloop()
